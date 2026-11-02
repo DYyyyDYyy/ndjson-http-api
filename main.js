@@ -29,6 +29,14 @@ function toNumber(value) {
   return typeof number === 'number' && Number.isFinite(number) ? number : null;
 }
 
+function toText(value) {
+  if (value === undefined || value === null) {
+    return '';
+  }
+  const text = String(value);
+  return text.trim() === '' || text === 'null' ? '' : text;
+}
+
 function parseNdjson(text) {
   return text
     .split('\n')
@@ -40,6 +48,24 @@ function parseNdjson(text) {
       }
       return record;
     });
+}
+
+function matches(record, maxMpg) {
+  if (maxMpg === null) {
+    return true;
+  }
+  const mpg = toNumber(record.mpg);
+  // null < 22 у JS дає true, тому записи без числа відсіюємо окремо
+  return mpg !== null && mpg < maxMpg;
+}
+
+function toItem(record, showCyl) {
+  const item = { model: toText(record.model) };
+  if (showCyl) {
+    item.cyl = toNumber(record.cyl);
+  }
+  item.mpg = toNumber(record.mpg);
+  return item;
 }
 
 function respond(res, status, body) {
@@ -79,7 +105,10 @@ function handleRequest(req, res) {
 
     let body;
     try {
-      body = JSON.stringify(parseNdjson(text));
+      const items = parseNdjson(text)
+        .filter((record) => matches(record, maxMpg))
+        .map((record) => toItem(record, showCyl));
+      body = JSON.stringify(items);
     } catch {
       sendError(res, 500, 'Файл даних пошкоджено');
       return;
