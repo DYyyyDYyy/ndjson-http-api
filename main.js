@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import { Command, InvalidArgumentError } from 'commander';
 
 function parsePort(value) {
@@ -21,3 +22,11 @@ program
 program.parse();
 
 const options = program.opts();
+
+fs.access(options.input, (err) => {
+  if (err) {
+    console.error('Cannot find input file');
+    process.exit(1);
+  }
+  console.log(`Файл даних знайдено: ${options.input}`);
+});
