@@ -1,0 +1,19 @@
+{
+  "name": "web-lab4",
+  "version": "1.0.0",
+  "description": "Простий HTTP-сервер на Node.js для набору даних mtcars",
+  "main": "main.js",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node main.js -i mtcars.json -h 127.0.0.1 -p 3000",
+    "dev": "node --watch main.js -i mtcars.json -h 127.0.0.1 -p 3000"
+  },
+  "author": "Sviatoslav Didukh",
+  "license": "ISC",
+  "dependencies": {
+    "commander": "^15.0.0"
+  }
+}
