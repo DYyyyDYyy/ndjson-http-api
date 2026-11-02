@@ -105,7 +105,13 @@ function sendError(res, status, message) {
 }
 
 function handleRequest(req, res) {
-  const url = new URL(req.url, 'http://localhost');
+  let url;
+  try {
+    url = new URL(req.url, 'http://localhost');
+  } catch {
+    sendError(res, 400, 'Некоректна адреса запиту');
+    return;
+  }
 
   if (url.pathname !== '/') {
     sendError(res, 404, 'Маршрут не знайдено');
@@ -143,7 +149,18 @@ function handleRequest(req, res) {
 }
 
 function startServer() {
-  const server = http.createServer(handleRequest);
+  const server = http.createServer((req, res) => {
+    try {
+      handleRequest(req, res);
+    } catch {
+      sendError(res, 500, 'Внутрішня помилка сервера');
+    }
+  });
+
+  server.on('error', (err) => {
+    console.error(`Не вдалося запустити сервер: ${err.message}`);
+    process.exit(1);
+  });
 
   server.listen(options.port, options.host, () => {
     console.log(`Сервер працює: http://${options.host}:${options.port}/`);
