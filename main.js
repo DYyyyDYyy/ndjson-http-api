@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import http from 'node:http';
 import { Command, InvalidArgumentError } from 'commander';
 
 function parsePort(value) {
@@ -23,10 +24,41 @@ program.parse();
 
 const options = program.opts();
 
+function respond(res, status, body) {
+  res.writeHead(status, {
+    'Content-Type': 'application/json; charset=utf-8',
+    'Content-Length': Buffer.byteLength(body)
+  });
+  res.end(body);
+}
+
+function sendError(res, status, message) {
+  respond(res, status, JSON.stringify({ error: message }));
+}
+
+function handleRequest(req, res) {
+  const url = new URL(req.url, 'http://localhost');
+
+  if (url.pathname !== '/') {
+    sendError(res, 404, 'Маршрут не знайдено');
+    return;
+  }
+
+  respond(res, 200, '[]');
+}
+
+function startServer() {
+  const server = http.createServer(handleRequest);
+
+  server.listen(options.port, options.host, () => {
+    console.log(`Сервер працює: http://${options.host}:${options.port}/`);
+  });
+}
+
 fs.access(options.input, (err) => {
   if (err) {
     console.error('Cannot find input file');
     process.exit(1);
   }
-  console.log(`Файл даних знайдено: ${options.input}`);
+  startServer();
 });
