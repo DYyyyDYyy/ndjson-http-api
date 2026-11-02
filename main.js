@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import http from 'node:http';
+import path from 'node:path';
 import { Command, InvalidArgumentError } from 'commander';
 
 function parsePort(value) {
@@ -76,8 +77,31 @@ function respond(res, status, body) {
   res.end(body);
 }
 
+function errorBody(message) {
+  return JSON.stringify({ error: message });
+}
+
+function send(res, status, body) {
+  if (!options.output) {
+    respond(res, status, body);
+    return;
+  }
+
+  // відповідь надсилається після запису, щоб помилку запису можна було повернути як 500
+  fs.writeFile(options.output, body, (err) => {
+    if (err) {
+      console.error(`Помилка запису у файл ${options.output}: ${err.message}`);
+      if (status === 200) {
+        respond(res, 500, errorBody('Не вдалося записати відповідь у файл'));
+        return;
+      }
+    }
+    respond(res, status, body);
+  });
+}
+
 function sendError(res, status, message) {
-  respond(res, status, JSON.stringify({ error: message }));
+  send(res, status, errorBody(message));
 }
 
 function handleRequest(req, res) {
@@ -114,7 +138,7 @@ function handleRequest(req, res) {
       return;
     }
 
-    respond(res, 200, body);
+    send(res, 200, body);
   });
 }
 
@@ -129,6 +153,10 @@ function startServer() {
 fs.access(options.input, (err) => {
   if (err) {
     console.error('Cannot find input file');
+    process.exit(1);
+  }
+  if (options.output && path.resolve(options.output) === path.resolve(options.input)) {
+    console.error('Файл для відповідей не може збігатися з файлом даних');
     process.exit(1);
   }
   startServer();
