@@ -56,7 +56,7 @@ function matches(record, maxMpg) {
     return true;
   }
   const mpg = toNumber(record.mpg);
-  // null < 22 у JS дає true, тому записи без числа відсіюємо окремо
+  // у JS null < число дає true, тому записи без числа відсіюємо окремо
   return mpg !== null && mpg < maxMpg;
 }
 
