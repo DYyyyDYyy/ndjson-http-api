@@ -24,6 +24,11 @@ program.parse();
 
 const options = program.opts();
 
+function toNumber(value) {
+  const number = typeof value === 'string' && value.trim() !== '' ? Number(value) : value;
+  return typeof number === 'number' && Number.isFinite(number) ? number : null;
+}
+
 function parseNdjson(text) {
   return text
     .split('\n')
@@ -54,6 +59,15 @@ function handleRequest(req, res) {
 
   if (url.pathname !== '/') {
     sendError(res, 404, 'Маршрут не знайдено');
+    return;
+  }
+
+  const showCyl = url.searchParams.get('cylinders') === 'true';
+  const maxMpgParam = url.searchParams.get('max_mpg');
+  const maxMpg = maxMpgParam === null ? null : toNumber(maxMpgParam);
+
+  if (maxMpgParam !== null && maxMpg === null) {
+    sendError(res, 400, 'Параметр max_mpg має бути числом');
     return;
   }
 
