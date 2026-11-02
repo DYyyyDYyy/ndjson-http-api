@@ -1,0 +1,15 @@
+{"model":"Plain","mpg":20,"cyl":4}
+{"model":"Strings","mpg":"18.5","cyl":"6"}
+{"model":"Null mpg","mpg":null,"cyl":8}
+{"model":"Empty mpg","mpg":"","cyl":4}
+{"model":"Text mpg","mpg":"n/a","cyl":4}
+{"model":"No cyl","mpg":15}
+{"model":null,"mpg":12,"cyl":8}
+{"mpg":9,"cyl":4}
+{"model":"null","mpg":"null","cyl":"null"}
+{"model":"  ","mpg":"  ","cyl":" "}
+{"model":"Huge","mpg":1e999,"cyl":4}
+{"model":"Negative","mpg":-3.5,"cyl":6}
+{"model":"Bool","mpg":true,"cyl":false}
+{"model":"Спорткар","mpg":"22","cyl":"8"}
+{"model":123,"mpg":1,"cyl":4}
