@@ -24,6 +24,19 @@ program.parse();
 
 const options = program.opts();
 
+function parseNdjson(text) {
+  return text
+    .split('\n')
+    .filter((line) => line.trim() !== '')
+    .map((line) => {
+      const record = JSON.parse(line);
+      if (record === null || typeof record !== 'object' || Array.isArray(record)) {
+        throw new Error('рядок не є JSON-об’єктом');
+      }
+      return record;
+    });
+}
+
 function respond(res, status, body) {
   res.writeHead(status, {
     'Content-Type': 'application/json; charset=utf-8',
@@ -44,7 +57,22 @@ function handleRequest(req, res) {
     return;
   }
 
-  respond(res, 200, '[]');
+  fs.readFile(options.input, 'utf8', (err, text) => {
+    if (err) {
+      sendError(res, 500, 'Не вдалося прочитати файл даних');
+      return;
+    }
+
+    let body;
+    try {
+      body = JSON.stringify(parseNdjson(text));
+    } catch {
+      sendError(res, 500, 'Файл даних пошкоджено');
+      return;
+    }
+
+    respond(res, 200, body);
+  });
 }
 
 function startServer() {
