@@ -1,7 +1,7 @@
 {
-  "name": "web-lab4",
+  "name": "ndjson-http-api",
   "version": "1.0.0",
-  "description": "Простий HTTP-сервер на Node.js для набору даних mtcars",
+  "description": "HTTP JSON API over an NDJSON dataset on the built-in node:http module",
   "main": "main.js",
   "type": "module",
   "engines": {
